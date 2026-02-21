@@ -68,7 +68,11 @@ Pergunta do visitante: ${userMsg}`;
             const genAI = new GoogleGenerativeAI(apiKey);
             const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
             const result = await model.generateContent(systemPrompt);
-            const responseText = result.response.text();
+            let responseText = result.response.text();
+
+            // Remove asteriscos de negrito e listas markdown
+            responseText = responseText.replace(/\*\*/g, '');
+            responseText = responseText.replace(/\* /g, '• ');
 
             setMessages((prev) => [...prev, {
                 role: 'assistant',
