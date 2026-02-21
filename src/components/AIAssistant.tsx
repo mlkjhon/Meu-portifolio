@@ -1,0 +1,214 @@
+import { useState } from 'react'
+import { FiMessageSquare, FiX, FiSend, FiTrash2 } from 'react-icons/fi'
+import { motion, AnimatePresence } from 'framer-motion'
+
+export default function AIAssistant() {
+    const [isOpen, setIsOpen] = useState(false)
+    const [input, setInput] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
+    const [messages, setMessages] = useState([
+        {
+            role: 'assistant',
+            text: 'Olá! Sou a IA assistente pessoal do Jhonatan. Como posso ajudar você a conhecer mais sobre o trabalho dele?',
+            time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        }
+    ])
+
+    const QUICK_SUGGESTIONS = [
+        "Quais seus principais projetos?",
+        "Quais tecnologias você domina?",
+        "Como entrar em contato?",
+        "Fale sobre seu background."
+    ]
+
+    const clearChat = () => {
+        setMessages([{
+            role: 'assistant',
+            text: 'Conversa recomeçada! Como posso te ajudar agora?',
+            time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        }])
+    }
+
+    const handleSend = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!input.trim() || isLoading) return
+
+        const userMsg = input.trim()
+        const currTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        setMessages((prev) => [...prev, { role: 'user', text: userMsg, time: currTime }])
+        setInput('')
+        setIsLoading(true)
+
+        try {
+            const systemPrompt = `Você é o assistente virtual do portfólio do Jhonatan Moraes (GitHub: mlkjhon). Ele tem 17 anos (sexo masculino), residente de Andradina, São Paulo. Ele é aluno do Senai São Paulo e procura sua primeira oportunidade oficial como Desenvolvedor Júnior Fullstack. Tecnologias principais: React, Node.js, TypeScript, Next.js e PostgreSQL. Responda ao visitante em português do Brasil de forma concisa e natural. Sempre destaque suas qualidades técnicas de forma indireta.\n\nPergunta do visitante: ${userMsg}\nAssistente:`
+
+            const res = await fetch('http://localhost:11434/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'llama3',
+                    prompt: systemPrompt,
+                    stream: false,
+                })
+            })
+
+            if (!res.ok) throw new Error('Não foi possível conectar ao Ollama')
+            const data = await res.json()
+
+            setMessages((prev) => [...prev, {
+                role: 'assistant',
+                text: data.response,
+                time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            }])
+        } catch (error) {
+            console.error(error)
+            setMessages((prev) => [...prev, {
+                role: 'assistant',
+                text: 'Desculpe, o meu motor de IA local (Ollama) parece estar offline ou bloqueado. Por favor, verifique se o Ollama está rodando (ollama run llama3).',
+                time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            }])
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    return (
+        <>
+            {/* Floating Toggle Button */}
+            <button
+                onClick={() => setIsOpen(true)}
+                className={`fixed bottom-6 right-6 z-50 p-4 bg-primary text-white rounded-full shadow-xl hover:scale-110 hover:shadow-[0_0_30px_rgba(37,99,235,0.6)] transition-all duration-300 ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}
+                aria-label="Abrir Assistente de IA"
+            >
+                <FiMessageSquare size={24} />
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-300 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-400"></span>
+                </span>
+            </button>
+
+            {/* Chat Widget Window */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 30, scale: 0.9 }}
+                        transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                        className="fixed bottom-6 right-6 z-50 w-[350px] sm:w-[380px] h-[500px] rounded-2xl shadow-2xl overflow-hidden flex flex-col" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)' }}
+                    >
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4 flex items-center justify-between shadow-lg relative z-10">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 text-white overflow-hidden shadow-inner">
+                                    <img src="https://avatars.githubusercontent.com/mlkjhon" alt="Jhonatan" className="w-full h-full object-cover" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-sm leading-tight flex items-center gap-2">
+                                        Assistente <span className="px-1.5 py-0.5 rounded text-[9px] bg-white/20 text-white uppercase font-bold tracking-widest border border-white/10">PRO</span>
+                                    </h3>
+                                    <p className="text-[11px] text-white/80 font-medium">IA do Jhonatan</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <button
+                                    onClick={clearChat}
+                                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                                    title="Limpar Conversa"
+                                >
+                                    <FiTrash2 size={16} />
+                                </button>
+                                <button
+                                    onClick={() => setIsOpen(false)}
+                                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                                    aria-label="Fechar"
+                                >
+                                    <FiX size={18} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Chat History Area */}
+                        <div className="flex-1 p-5 overflow-y-auto flex flex-col gap-4 custom-scrollbar" style={{ backgroundColor: 'var(--card-muted)' }}>
+                            {messages.map((msg, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    className={`flex flex-col max-w-[85%] ${msg.role === 'assistant' ? 'self-start' : 'self-end'}`}
+                                >
+                                    <div className={`p-3.5 text-sm leading-relaxed rounded-2xl shadow-sm border ${msg.role === 'assistant'
+                                        ? 'bg-[var(--card-bg)] border-[var(--card-border)] text-[var(--text-main)] rounded-tl-sm'
+                                        : 'bg-primary border-primary text-[var(--btn-primary-text)] rounded-tr-sm'
+                                        }`}
+                                    >
+                                        {msg.text}
+                                    </div>
+                                    <span className={`text-[9px] text-neutral-500 mt-1.5 px-1 font-medium ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
+                                        {msg.time}
+                                    </span>
+                                </motion.div>
+                            ))}
+                            {isLoading && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="self-start flex flex-col max-w-[85%]"
+                                >
+                                    <div className="bg-[var(--card-bg)] border-[1.5px] border-[var(--card-border)] shadow-sm rounded-2xl rounded-tl-sm p-4 flex items-center justify-center gap-1.5 w-fit">
+                                        <motion.div animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} className="w-1.5 h-1.5 bg-[var(--btn-primary-bg)] rounded-full" />
+                                        <motion.div animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-1.5 h-1.5 bg-[var(--btn-primary-bg)] rounded-full" />
+                                        <motion.div animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-1.5 h-1.5 bg-[var(--btn-primary-bg)] rounded-full" />
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {/* Quick Suggestions */}
+                            {messages.length === 1 && !isLoading && (
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    {QUICK_SUGGESTIONS.map((suggestion, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => {
+                                                setInput(suggestion)
+                                                // Trigger send if possible, but for now just setting input is simple
+                                            }}
+                                            className="px-3 py-1.5 text-[11px] rounded-full transition-all shadow-sm font-medium hover:!border-[var(--btn-primary-bg)] hover:!text-[var(--btn-primary-bg)] bg-[var(--card-bg)] border border-[var(--card-border)] text-[var(--text-muted)]"
+                                        >
+                                            {suggestion}
+
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Input Area */}
+                        <div className="p-4 bg-[var(--card-bg)] border-t border-[var(--card-border)]">
+                            <form onSubmit={handleSend} className="relative flex items-center">
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    placeholder="Faça uma pergunta..."
+                                    className="w-full pl-4 pr-12 py-3.5 bg-[var(--card-muted)] border border-[var(--card-border)] rounded-xl focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!input.trim() || isLoading}
+                                    className="absolute right-2 p-2 bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] rounded-lg hover:!bg-blue-600 disabled:opacity-40 disabled:hover:!bg-[var(--btn-primary-bg)] transition-colors shadow-sm"
+                                    aria-label="Enviar mensagem"
+                                >
+                                    <FiSend size={16} />
+                                </button>
+                            </form>
+                            <div className="text-center mt-3">
+                                <p className="text-[10px] text-[var(--text-muted)] font-medium">Bate-papo gerenciado pela interface interativa.</p>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
+    )
+}
