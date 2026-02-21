@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FiMessageSquare, FiX, FiSend, FiTrash2 } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'framer-motion'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 export default function AIAssistant() {
     const [isOpen, setIsOpen] = useState(false)
@@ -40,31 +41,28 @@ export default function AIAssistant() {
         setIsLoading(true)
 
         try {
-            const systemPrompt = `Você é o assistente virtual do portfólio do Jhonatan Moraes (GitHub: mlkjhon). Ele tem 17 anos (sexo masculino), residente de Andradina, São Paulo. Ele é aluno do Senai São Paulo e procura sua primeira oportunidade oficial como Desenvolvedor Júnior Fullstack. Tecnologias principais: React, Node.js, TypeScript, Next.js e PostgreSQL. Responda ao visitante em português do Brasil de forma concisa e natural. Sempre destaque suas qualidades técnicas de forma indireta.\n\nPergunta do visitante: ${userMsg}\nAssistente:`
+            const systemPrompt = `Você é o assistente virtual do portfólio do Jhonatan Moraes (GitHub: mlkjhon). Ele tem 17 anos (sexo masculino), residente de Andradina, São Paulo. Ele é aluno do Senai São Paulo e procura sua primeira oportunidade oficial como Desenvolvedor Júnior Fullstack. Tecnologias principais: React, Node.js, TypeScript, Next.js e PostgreSQL. Responda ao visitante em português do Brasil de forma concisa e natural. Sempre destaque suas qualidades técnicas de forma indireta.\n\nPergunta do visitante: ${userMsg}`;
 
-            const res = await fetch('http://localhost:11434/api/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'llama3',
-                    prompt: systemPrompt,
-                    stream: false,
-                })
-            })
+            const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "AIzaSyCvCXbzbFrpCfHlj8IjlYJ21vOWLPtFQ3I";
+            if (!apiKey) {
+                throw new Error('Chave da API Gemini não configurada.');
+            }
 
-            if (!res.ok) throw new Error('Não foi possível conectar ao Ollama')
-            const data = await res.json()
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const result = await model.generateContent(systemPrompt);
+            const responseText = result.response.text();
 
             setMessages((prev) => [...prev, {
                 role: 'assistant',
-                text: data.response,
+                text: responseText,
                 time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
             }])
         } catch (error) {
             console.error(error)
             setMessages((prev) => [...prev, {
                 role: 'assistant',
-                text: 'Desculpe, o meu motor de IA local (Ollama) parece estar offline ou bloqueado. Por favor, verifique se o Ollama está rodando (ollama run llama3).',
+                text: 'Desculpe, minha IA está temporariamente indisponível. Caso seja o dono do site, verifique se a VITE_GEMINI_API_KEY foi adicionada nas variáveis de ambiente da Vercel.',
                 time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
             }])
         } finally {
