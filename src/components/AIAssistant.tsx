@@ -60,7 +60,7 @@ Regras de Resposta:
 
 Pergunta do visitante: ${userMsg}`;
 
-            const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "AIzaSyCvCXbzbFrpCfHlj8IjlYJ21vOWLPtFQ3I";
+            const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
             if (!apiKey) {
                 throw new Error('Chave da API Gemini não configurada.');
             }
