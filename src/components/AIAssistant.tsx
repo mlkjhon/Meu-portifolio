@@ -79,11 +79,12 @@ Pergunta do visitante: ${userMsg}`;
                 text: responseText,
                 time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
             }])
-        } catch (error) {
+        } catch (error: any) {
             console.error(error)
+            const erroReal = error?.message || 'Erro Desconhecido';
             setMessages((prev) => [...prev, {
                 role: 'assistant',
-                text: 'Desculpe, minha IA está temporariamente indisponível. Caso seja o dono do site, verifique se a VITE_GEMINI_API_KEY foi adicionada nas variáveis de ambiente da Vercel.',
+                text: `Desculpe, minha IA está temporariamente indisponível. Erro técnico: ${erroReal} | Verifique a VITE_GEMINI_API_KEY no Vercel.`,
                 time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
             }])
         } finally {
