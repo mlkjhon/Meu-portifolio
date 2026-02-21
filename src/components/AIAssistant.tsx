@@ -3,11 +3,18 @@ import { FiMessageSquare, FiX, FiSend, FiTrash2 } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'framer-motion'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
+interface Message {
+    role: string;
+    text: string;
+    time: string;
+    id?: number;
+}
+
 export default function AIAssistant() {
     const [isOpen, setIsOpen] = useState(false)
     const [input, setInput] = useState('')
     const [isLoading, setIsLoading] = useState(false)
-    const [messages, setMessages] = useState([
+    const [messages, setMessages] = useState<Message[]>([
         {
             role: 'assistant',
             text: 'Olá! Eu sou o Jhonatan. Fique à vontade para me fazer perguntas sobre minha experiência, projetos e tecnologias.',
@@ -67,18 +74,31 @@ Pergunta: ${userMsg}`;
 
             const genAI = new GoogleGenerativeAI(apiKey);
             const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-            const result = await model.generateContent(systemPrompt);
-            let responseText = result.response.text();
 
-            // Remove asteriscos de negrito e listas markdown
-            responseText = responseText.replace(/\*\*/g, '');
-            responseText = responseText.replace(/\* /g, '• ');
+            // Inicia streaming
+            const result = await model.generateContentStream(systemPrompt);
 
+            // Adiciona uma mensagem vazia para o assistente
+            const assistantMsgId = Date.now();
             setMessages((prev) => [...prev, {
                 role: 'assistant',
-                text: responseText,
-                time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-            }])
+                text: '',
+                time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                id: assistantMsgId // Usando ID para facilitar atualização
+            }]);
+
+            let fullText = '';
+            for await (const chunk of result.stream) {
+                let chunkText = chunk.text();
+                // Limpeza de markdown em tempo real (simplificada)
+                chunkText = chunkText.replace(/\*\*/g, '');
+                fullText += chunkText;
+
+                setMessages((prev) => prev.map(msg =>
+                    msg.id === assistantMsgId ? { ...msg, text: fullText.replace(/\* /g, '• ') } : msg
+                ));
+            }
+
         } catch (error: any) {
             console.error(error)
             const erroReal = error?.message || 'Erro Desconhecido';
