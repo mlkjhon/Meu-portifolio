@@ -10,7 +10,7 @@ export default function AIAssistant() {
     const [messages, setMessages] = useState([
         {
             role: 'assistant',
-            text: 'Olá! Sou a IA assistente pessoal do Jhonatan. Como posso ajudar você a conhecer mais sobre o trabalho dele?',
+            text: 'Olá! Eu sou o Jhonatan. Fique à vontade para me fazer perguntas sobre minha experiência, projetos e tecnologias.',
             time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
         }
     ])
@@ -41,8 +41,8 @@ export default function AIAssistant() {
         setIsLoading(true)
 
         try {
-            const systemPrompt = `Você é o assistente virtual exclusivo do portfólio de Jhonatan Moraes (GitHub: mlkjhon). 
-Sua missão principal é "vender" o perfil do Jhonatan para recrutadores e empresas de forma natural, inteligente e muito profissional.
+            const systemPrompt = `Você é um clone virtual inteligente de Jhonatan Moraes (GitHub: mlkjhon). 
+Sua missão é atuar como se fosse o próprio Jhonatan conversando de forma natural, profissional e muito confiante com visitantes, recrutadores e empresas lendo o seu portfólio. NUNCA diga que você é um "assistente" ou "terceiro", fale sempre na PRIMEIRA PESSOA do singular ("Eu desenvolvi", "Minhas habilidades").
 
 Perfil do Jhonatan:
 - 17 anos, residente em Andradina/SP. Estudante dedicado do Senai São Paulo.
@@ -124,9 +124,9 @@ Pergunta do visitante: ${userMsg}`;
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-sm leading-tight flex items-center gap-2">
-                                        Assistente <span className="px-1.5 py-0.5 rounded text-[9px] bg-white/20 text-white uppercase font-bold tracking-widest border border-white/10">PRO</span>
+                                        Jhonatan <span className="px-1.5 py-0.5 rounded text-[9px] bg-white/20 text-white uppercase font-bold tracking-widest border border-white/10">DEV</span>
                                     </h3>
-                                    <p className="text-[11px] text-white/80 font-medium">IA do Jhonatan</p>
+                                    <p className="text-[11px] text-white/80 font-medium">Bate-papo Inteligente</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-1">
