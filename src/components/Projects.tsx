@@ -9,21 +9,17 @@ const financeAITags = [
 
 const mockProjects = [
     {
-        title: 'E-commerce API',
-        desc: 'API RESTFul construída com Node.js e Express, incluindo autenticação JWT, pagamentos simulados e integração com banco de dados relacional.',
-        tags: ['Node.js', 'Express', 'JWT', 'PostgreSQL'],
+        title: 'Builder AI',
+        desc: 'Plataforma impulsionada por IA que transforma ideias em planos de negócios completos em segundos, com análise de mercado, estratégia e matriz SWOT.',
+        tags: ['React', 'TypeScript', 'Gemini AI', 'Tailwind'],
+        link: 'https://builder-ai-smoky.vercel.app',
         github: 'https://github.com/mlkjhon',
     },
     {
-        title: 'TaskFlow',
-        desc: 'Aplicação web no estilo Kanban com drag-and-drop para gerenciamento de tarefas pessoais da faculdade e trabalho.',
-        tags: ['React', 'Redux', 'Tailwind CSS', 'Firebase'],
-        github: 'https://github.com/mlkjhon',
-    },
-    {
-        title: 'HealthTrack CLI',
-        desc: 'Utilitário de linha de comando para monitorar ingestão de água e horas de sono diretamente do terminal.',
-        tags: ['TypeScript', 'Node.js', 'CLI'],
+        title: 'easyList',
+        desc: 'Aplicativo multiplataforma para organização de tarefas, rotinas e times. Foco em produtividade com interface simples e eficiente.',
+        tags: ['Next.js', 'React Native', 'Tailwind CSS'],
+        link: 'https://easy-list-peach.vercel.app',
         github: 'https://github.com/mlkjhon',
     }
 ]
@@ -56,9 +52,9 @@ export default function Projects() {
 
                         {/* Content Left */}
                         <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-center">
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/50 dark:bg-amber-500/10 border border-amber-200/50 dark:border-amber-500/20 text-amber-700 dark:text-amber-400 text-xs font-bold mb-6 w-max uppercase tracking-wider">
-                                <FiClock size={12} className="animate-pulse" />
-                                Quase finalizado
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/50 dark:bg-emerald-500/10 border border-emerald-200/50 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold mb-6 w-max uppercase tracking-wider">
+                                <FiActivity size={12} className="animate-pulse" />
+                                Online
                             </div>
 
                             <h3 className="text-3xl sm:text-4xl font-bold text-main mb-4 tracking-tight">
@@ -95,13 +91,15 @@ export default function Projects() {
                                     <FiGithub size={18} />
                                     Código Privado
                                 </a>
-                                <span
+                                <a
+                                    href="https://finance-ai-rvn8.vercel.app"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="inline-flex items-center gap-2 px-6 py-3 text-[var(--text-main)] bg-[var(--card-bg)] border-[1.5px] border-[var(--card-border)] hover:!bg-[var(--card-hover-bg)] text-sm font-semibold rounded-xl cursor-pointer shadow-sm transition-colors"
-                                    title="Demo em breve"
                                 >
                                     <FiExternalLink size={18} />
-                                    Demo em Breve
-                                </span>
+                                    Visitar Site
+                                </a>
                             </div>
                         </div>
 
@@ -235,14 +233,28 @@ export default function Projects() {
                                             <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                                                 <FiFolder size={20} />
                                             </div>
-                                            <a
-                                                href={project.github}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:text-white transition-colors"
-                                            >
-                                                <FiGithub size={20} />
-                                            </a>
+                                            <div className="flex gap-3">
+                                                {project.link && (
+                                                    <a
+                                                        href={project.link}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:text-white transition-colors"
+                                                        title="Visitar Site"
+                                                    >
+                                                        <FiExternalLink size={20} />
+                                                    </a>
+                                                )}
+                                                <a
+                                                    href={project.github}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:text-white transition-colors"
+                                                    title="Código Fonte"
+                                                >
+                                                    <FiGithub size={20} />
+                                                </a>
+                                            </div>
                                         </div>
 
                                         <h4 className="text-lg font-bold text-main mb-2">{project.title}</h4>
