@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useScrollReveal } from '../hooks/useScrollReveal'
-import { FiGithub, FiExternalLink, FiClock, FiActivity, FiPieChart, FiFolder, FiChevronDown } from 'react-icons/fi'
+import { FiGithub, FiExternalLink, FiActivity, FiPieChart, FiFolder, FiChevronDown } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const financeAITags = [
